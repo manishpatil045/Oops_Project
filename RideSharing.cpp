@@ -6,25 +6,37 @@
 #include <ctime>
 #include <fstream>
 using namespace std;
-vector<string> naam = {"patil", "vikas", "aryan", "manish"};
-vector<string> gadi = {"SUV", "ALTO", "SUV", "Gwagonr"};
-vector<int> mob = {888, 999, 111, 333};
-vector<int> exp = {2, 5, 1, 6};
 bool check(string name){
-    int i = 0;
-    while (i != naam.size()){
-        if (name == naam[i]) return true;
-        i++;
+    ifstream dfile("drivers.txt");
+    string line;
+    while (getline(dfile, line)) {
+        if (line.find("Name: ") != string::npos) {
+            string dname = line.substr(6);
+            if (dname == name) {
+                dfile.close();
+                return true;
+            }
+        }
     }
+    dfile.close();
     return false;
 }
-int idx_naam(string n){
-    int i = 0;
-    while (i != naam.size()){
-        if (n == naam[i]) return i;
-        i++;
+int idx_naam(string n) {
+    ifstream dfile("drivers.txt");
+    string line;
+    int index = 0;
+    while (getline(dfile, line)) {
+        if (line.find("Name: ") != string::npos) {
+            string dname = line.substr(6);
+            if (dname == n) {
+                dfile.close();
+                return index;
+            }
+            index++;
+        }
     }
-    return -1;
+    dfile.close();
+    return -1; 
 }
 class user{
 public:
@@ -38,7 +50,18 @@ public:
     int experience;
     void check_acount(){
         if (check(driv.name)) cout << "account exist:\n";
-        else cout << "account not exist:\n";
+        else{ 
+            cout << "account created:\n";
+            ofstream dfile("drivers.txt", ios::app);
+            if (dfile.is_open()) {
+                dfile << "Name: " <<driv.name << "\n";
+                dfile << "Mobile: " <<driv.mobile << "\n";
+                dfile << "Vehicle: " << vehicle << "\n";
+                dfile << "Experience: " << experience << "\n";
+                dfile << "-----------------\n";
+                dfile.close();
+            }
+    }
     }
     void check_driver_rides(){
         ifstream file("rides.txt");
@@ -48,11 +71,18 @@ public:
         while (getline(file, line)){
             if (line.find("Driver: ") != string::npos && line.find(driv.name) != string::npos){
                 found = true;
-                cout << line << endl;
-                getline(file, line); cout << line << endl;
-                getline(file, line); cout << line << endl;
+                file.seekg(-(int)line.size()-1, ios::cur); // move back to start of block
+                string rideID, passenger, driver, rating, separator;
+                getline(file, rideID);
+                getline(file, passenger);
+                getline(file, driver);
+                getline(file, rating);
+                getline(file, separator);
+                cout << rideID << "\n" << passenger << "\n" << driver << "\n" << rating << "\n";
+                cout << separator << "\n";
             }
         }
+
         if (!found) cout << "No rides found for " << driv.name << endl;
         file.close();
     }
@@ -63,16 +93,38 @@ public:
     int age;
     int rides;
     void book_ride(){
-        for (int i = 0; i < 4; i++){
-            cout << i << naam[i] << endl<< gadi[i] <<endl<< mob[i] << endl<< exp[i] << endl;
-            cout << endl;
+        ifstream dfile("drivers.txt");
+        string line;
+        vector<string> drivers;  
+        vector<string> vehicles; 
+        int index = 0;
+        cout << "Available drivers:\n";
+        string dname, dmobile, dvehicle, dexp;
+        while (getline(dfile, line)) {
+            if (line.find("Name: ") != string::npos) {
+                dname=line.substr(6);
+                getline(dfile, line); dmobile = line.substr(8);
+                getline(dfile, line); dvehicle = line.substr(9);
+                getline(dfile, line); dexp = line.substr(12);
+                cout << index << ". " << dname <<"("<<dvehicle<<")"<< endl;
+                drivers.push_back(dname);
+                vehicles.push_back(dvehicle);
+                index++;
+                getline(dfile, line);
+            }
         }
+    dfile.close();
+
+    if (drivers.empty()) {
+        cout << "No drivers available!\n";
+        return;
+    }
         int y;
         cout << "choose any driver:\t";
         cin >> y;
         srand(time(0));
         int randomNum = rand() % 9000 + 1000;
-        cout << "Ride booked with " << naam[y] << " | Ride ID: " << randomNum << endl;
+        cout << "Ride booked with " << drivers[y] << " | Ride ID: " << randomNum << endl;
         int rating;
         cout<<"please rate your driver(1-5):";
         cin>>rating;
@@ -80,8 +132,8 @@ public:
         if (file.is_open()){
             file << "RideID: " << randomNum << "\n";
             file << "Passenger: " << pass.name<< " (" << pass.mobile << ", age=" << age << ")\n";
-            file << "Driver: " << naam[y]<< " (" << mob[y] << ", " << gadi[y]<< ", exp=" << exp[y] << " years)\n";
-            file<<"Rating: "<<rating<<"\n";
+            file << "Driver: " << drivers[y] << "\n";
+            file << "Rating: " << rating << "\n";
             file << "---------------------------\n";
             file.close();
         }
