@@ -16,7 +16,10 @@ bool check(string name)
     while (i != naam.size())
     {
         if (name == naam[i])
+        {
             return true;
+        }
+        i++;
     }
     return false;
 }
@@ -26,7 +29,10 @@ int idx_naam(string n)
     while (i != naam.size())
     {
         if (n == naam[i])
+        {
             return i;
+        }
+        i++;
     }
     return -1;
 }
@@ -46,11 +52,11 @@ public:
     {
         if (check(driv.name))
         {
-            cout << "acount exsist:\n";
+            cout << "account exist:\n";
         }
         else
         {
-            cout << "acount not exist:\n";
+            cout << "account not exist:\n";
         }
     }
     void check_driver_rides()
@@ -66,9 +72,9 @@ public:
                 line.find(driv.name) != string::npos)
             {
                 found = true;
-                cout << line << endl; 
+                cout << line << endl;
                 getline(file, line);
-                cout << line << endl; 
+                cout << line << endl;
             }
         }
 
@@ -99,7 +105,7 @@ public:
         srand(time(0));
         int randomNum = rand() % 9000 + 1000;
         cout << "Ride booked with " << naam[y] << " | Ride ID: " << randomNum << endl;
-        ofstream file("rides.txt", ios::app); 
+        ofstream file("rides.txt", ios::app);
         if (file.is_open())
         {
             file << "RideID: " << randomNum << "\n";
@@ -125,11 +131,11 @@ public:
                 line.find(pass.name) != string::npos)
             {
                 found = true;
-                cout << line << endl; 
+                cout << line << endl;
                 getline(file, line);
-                cout << line << endl; 
+                cout << line << endl;
                 getline(file, line);
-                cout << line << endl; 
+                cout << line << endl;
             }
         }
 
